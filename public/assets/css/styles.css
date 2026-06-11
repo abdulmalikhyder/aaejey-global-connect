@@ -157,7 +157,8 @@ p { margin: 0 0 1em; color: #2c3e50; }
   grid-auto-rows: 110px;
 }
 .hero-collage img {
-  width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius);
+  width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius);
+  background: #fff; padding: 10px;
   box-shadow: var(--shadow-md);
 }
 .hero-collage img:nth-child(1) { grid-column: 1/3; grid-row: 1/3; }
