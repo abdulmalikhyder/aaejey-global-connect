@@ -71,8 +71,8 @@ p { margin: 0 0 1em; color: #2c3e50; }
 }
 .brand {
   display: flex; align-items: center; gap: 10px;
-  font-family: var(--font-display); font-size: 1.35rem; font-weight: 500;
-  color: var(--navy); letter-spacing: .02em;
+  font-family: var(--font-body); font-size: 1.3rem; font-weight: 700;
+  color: var(--navy); letter-spacing: .04em;
 }
 .brand-mark {
   width: 36px; height: 36px; border-radius: 10px;
