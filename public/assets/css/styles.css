@@ -80,6 +80,11 @@ p { margin: 0 0 1em; color: #2c3e50; }
   display: grid; place-items: center; color: #fff; font-weight: 700;
   font-family: var(--font-body); box-shadow: var(--shadow-sm);
 }
+.brand-logo-img {
+  width: auto; height: 38px;
+  object-fit: contain;
+  border-radius: 6px;
+}
 .nav-links {
   display: flex; gap: 8px; align-items: center; list-style: none;
   margin: 0; padding: 0;
