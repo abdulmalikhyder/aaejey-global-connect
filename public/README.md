@@ -56,7 +56,7 @@ That's it — submissions will now arrive in your inbox.
 - **Social links** — footers link to facebook.com / instagram.com / twitter.com root. Replace with your actual handles.
 - **Export country list** — `export.html`, the `country-grid` block. Add/remove pills as you sign new markets.
 - **Product copy & pack sizes** — files in `public/products/`. Each page is self-contained.
-- **Map location** — `contact.html`, the `<iframe>` near the bottom uses `Polgahawela, Sri Lanka`. Change the query string to your exact factory address.
+- **Map location** — `contact.html`, the `<iframe>` near the bottom uses `Sri Lanka`. Change the query string to your exact factory address.
 
 ## Design
 
