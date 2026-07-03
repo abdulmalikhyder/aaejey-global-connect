@@ -21,7 +21,7 @@
   --radius: 14px;
   --radius-lg: 22px;
   --maxw: 1240px;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-arabic: "Amiri", "Noto Naskh Arabic", serif;
 }
@@ -145,7 +145,7 @@ p { margin: 0 0 1em; color: #2c3e50; }
   content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--teal);
 }
 .hero h1 em {
-  font-style: italic; color: var(--teal); font-weight: 300;
+   color: var(--teal); font-weight: 300;
 }
 .hero-sub {
   font-size: 1.15rem; color: var(--muted); max-width: 520px; margin: 24px 0 32px;
@@ -226,7 +226,7 @@ p { margin: 0 0 1em; color: #2c3e50; }
 .pillar:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--teal); }
 .pillar-num {
   font-family: var(--font-display); font-size: 2.2rem; color: var(--teal);
-  font-style: italic; margin-bottom: 12px;
+   margin-bottom: 12px;
 }
 .pillar h3 { margin-bottom: 10px; }
 @media (max-width: 760px) { .pillars { grid-template-columns: 1fr; } }
@@ -301,7 +301,7 @@ p { margin: 0 0 1em; color: #2c3e50; }
 }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 .marquee-item {
-  font-family: var(--font-display); font-size: 1.8rem; font-style: italic;
+  font-family: var(--font-display); font-size: 1.8rem; 
   color: #fff; opacity: .85; letter-spacing: .02em;
 }
 .marquee-item::after {
@@ -363,7 +363,7 @@ p { margin: 0 0 1em; color: #2c3e50; }
 .brand-card.flagship h3, .brand-card.flagship p { color: #fff; }
 .brand-card.flagship p { color: #d6e1ec; }
 .brand-name {
-  font-family: var(--font-display); font-size: 2rem; font-style: italic;
+  font-family: var(--font-display); font-size: 2rem; 
   color: var(--teal); margin-bottom: 6px;
 }
 .brand-card.flagship .brand-name { color: var(--gold); }
