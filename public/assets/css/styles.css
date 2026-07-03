@@ -541,11 +541,3 @@ p { margin: 0 0 1em; color: #2c3e50; }
   font-style: normal !important;
   letter-spacing: .04em !important;
 }
-
-/* Remove default list indentation across content */
-.section ul, .section ol, .vm-card ul, .vm-card ol, .footer ul {
-  list-style: none;
-  padding-left: 0;
-  margin-left: 0;
-}
-.section p, .vm-card p { text-indent: 0; }
