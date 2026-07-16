@@ -101,6 +101,25 @@
   var PRICE_REPLY =
     "For pricing, MOQ, and wholesale enquiries, please email **info@aaejey.com** or WhatsApp **+94 72 228 0809**. Our team will get back to you within 1–2 business days with a full quote.";
 
+  // ---------- Private / insider info (not on the public site) ----------
+  var PRIVATE_INFO = [
+    {
+      keys: ["secret recipe", "recipe", "ingredient", "ingredients", "formula", "what's inside", "whats inside", "made of", "made from"],
+      reply:
+        "Great question! 🌿 Our **secret recipe** relies on **high-grade local ingredients sourced right here in Sri Lanka** — we take pride in supporting local suppliers while keeping quality consistent across every batch."
+    },
+    {
+      keys: ["wholesale pric", "wholesale rate", "bulk pric", "bulk rate", "bulk order pric", "wholesale cost", "trade price", "dealer price"],
+      reply:
+        "For **wholesale pricing** and bulk rates, please contact our sales team directly — they'll tailor a quote to your order volume and destination. 📧 **info@aaejey.com** · 📱 **+94 72 228 0809**"
+    },
+    {
+      keys: ["founder", "who founded", "who started", "started by", "owner", "who owns", "family behind"],
+      reply:
+        "AAEJEY was **founded by the AAEJEY family over 25 years ago** — and it's still proudly family-run today. Three generations of hands-on care go into every product we make."
+    }
+  ];
+
   var FALLBACK =
     "I'm not quite sure I caught that. Here's what I can help with:\n\n" +
     "• Our **products** and brands\n" +
@@ -135,6 +154,11 @@
       if (text.indexOf(brandKeys[i]) !== -1) {
         return BRANDS[brandKeys[i]].reply;
       }
+    }
+
+    // Private / insider info (checked before generic fallbacks)
+    for (var p = 0; p < PRIVATE_INFO.length; p++) {
+      if (has(text, PRIVATE_INFO[p].keys)) return PRIVATE_INFO[p].reply;
     }
 
     // Product categories keyword match (individual product)
@@ -185,7 +209,38 @@
       return "Goodbye! Thanks for visiting AAEJEY. Have a great day! 👋";
     }
 
-    return FALLBACK;
+    // No match — caller should try the general LLM fallback
+    return null;
+  }
+
+  // ---------- General AI fallback ----------
+  // For questions outside AAEJEY's business scope, call a lightweight LLM
+  // via our own /api/public/chat endpoint (Lovable AI Gateway). The reply
+  // is prefixed with a polite reminder that this is the AAEJEY assistant.
+  function generalFallback(userText) {
+    var payload = {
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are Aae, the AAEJEY Consumer Company assistant. The user just asked something outside AAEJEY's business scope (not about our products, brands, exports, or contact info). Answer their general question helpfully and concisely (2-4 sentences). Do NOT invent AAEJEY-specific facts. Reply ONLY with the general answer text — no preamble, no reminder about AAEJEY (that will be added automatically)."
+        },
+        { role: "user", content: userText }
+      ]
+    };
+    return fetch("/api/public/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var ans = data && data.reply ? String(data.reply).trim() : "";
+        if (!ans) return FALLBACK;
+        return "I'm the AAEJEY assistant, but I can help you with that! " + ans +
+          "\n\nIs there anything about our **products, exports, or contact info** I can help with?";
+      })
+      .catch(function () { return FALLBACK; });
   }
 
   // ---------- UI ----------
@@ -309,12 +364,20 @@
     input.value = "";
     addMessage("user", text);
     var typing = addTyping();
-    // Small delay to feel natural
-    setTimeout(function () {
-      typing.remove();
-      addMessage("assistant", answer(text));
-      input.focus();
-    }, 450 + Math.random() * 350);
+    var localAnswer = answer(text);
+    if (localAnswer) {
+      setTimeout(function () {
+        typing.remove();
+        addMessage("assistant", localAnswer);
+        input.focus();
+      }, 450 + Math.random() * 350);
+    } else {
+      generalFallback(text).then(function (reply) {
+        typing.remove();
+        addMessage("assistant", reply || FALLBACK);
+        input.focus();
+      });
+    }
   }
 
   sendBtn.addEventListener("click", function () { send(); });
