@@ -101,6 +101,25 @@
   var PRICE_REPLY =
     "For pricing, MOQ, and wholesale enquiries, please email **info@aaejey.com** or WhatsApp **+94 72 228 0809**. Our team will get back to you within 1–2 business days with a full quote.";
 
+  // ---------- Private / insider info (not on the public site) ----------
+  var PRIVATE_INFO = [
+    {
+      keys: ["secret recipe", "recipe", "ingredient", "ingredients", "formula", "what's inside", "whats inside", "made of", "made from"],
+      reply:
+        "Great question! 🌿 Our **secret recipe** relies on **high-grade local ingredients sourced right here in Sri Lanka** — we take pride in supporting local suppliers while keeping quality consistent across every batch."
+    },
+    {
+      keys: ["wholesale pric", "wholesale rate", "bulk pric", "bulk rate", "bulk order pric", "wholesale cost", "trade price", "dealer price"],
+      reply:
+        "For **wholesale pricing** and bulk rates, please contact our sales team directly — they'll tailor a quote to your order volume and destination. 📧 **info@aaejey.com** · 📱 **+94 72 228 0809**"
+    },
+    {
+      keys: ["founder", "who founded", "who started", "started by", "owner", "who owns", "family behind"],
+      reply:
+        "AAEJEY was **founded by the AAEJEY family over 25 years ago** — and it's still proudly family-run today. Three generations of hands-on care go into every product we make."
+    }
+  ];
+
   var FALLBACK =
     "I'm not quite sure I caught that. Here's what I can help with:\n\n" +
     "• Our **products** and brands\n" +
