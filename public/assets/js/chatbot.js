@@ -1,20 +1,6 @@
-/* AAEJEY AI Chatbot widget — vanilla JS */
+/* AAEJEY AI Chatbot widget — fully local, no backend required */
 (function () {
   "use strict";
-
-  // API endpoint — points to the Lovable-hosted backend so the chatbot works
-  // even when the static site is deployed elsewhere (Netlify, Vercel, etc.).
-  var API_ENDPOINT =
-    "https://project--7e5e965d-325e-4d0a-be65-f7aa7a4ff7ef.lovable.app/api/public/chat";
-
-  // On the Lovable preview / same-origin, use relative path.
-  if (
-    location.hostname.indexOf("lovable.app") !== -1 ||
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1"
-  ) {
-    API_ENDPOINT = "/api/public/chat";
-  }
 
   var SUGGESTIONS = [
     "What products do you make?",
@@ -26,7 +12,183 @@
   var WELCOME =
     "Hi! I'm Aae, AAEJEY's virtual assistant. Ask me about our products, brands, exports, or how to get in touch. 👋";
 
-  // Build DOM
+  // ---------- Local knowledge base ----------
+  var BRANDS = {
+    nilma: {
+      name: "Nilma — Liquid Blue",
+      reply:
+        "**Nilma** is our laundry whitener/blueing agent that keeps whites bright and fresh. Available in 30ml and 275ml bottles. See the Liquid Blue product page for details."
+    },
+    flowery: {
+      name: "Flowery — Air Freshener",
+      reply:
+        "**Flowery** is our long-lasting air freshener in a 50g plastic holder — a subtle, pleasant fragrance for homes, offices and vehicles."
+    },
+    mammoth: {
+      name: "Mammoth — Naphthalene Balls",
+      reply:
+        "**Mammoth** naphthalene balls protect clothes and cupboards from moths and mildew. Sold in 400g packs."
+    },
+    rytink: {
+      name: "Rytink — Ball Point Pens",
+      reply:
+        "**Rytink** (Rytink Alpha range) is our smooth-writing ball point pen line, made for schools, offices and everyday use."
+    },
+    luty: {
+      name: "Luty — Liquid Dish Wash",
+      reply:
+        "**Luty** is our concentrated liquid dish wash — cuts grease fast and is gentle on hands. Available in 500ml bottles."
+    },
+    lovendry: {
+      name: "Lovendry — Laundry Detergent",
+      reply:
+        "**Lovendry** is our liquid laundry detergent, formulated for bright colours and fresh whites. Sold in 1000ml bottles."
+    },
+    "mr. doust": {
+      name: "Mr. Doust — Toilet Cleaner",
+      reply:
+        "**Mr. Doust** is our powerful toilet cleaner that removes tough stains and kills germs. Available in 500ml bottles."
+    },
+    "mr doust": {
+      name: "Mr. Doust — Toilet Cleaner",
+      reply:
+        "**Mr. Doust** is our powerful toilet cleaner that removes tough stains and kills germs. Available in 500ml bottles."
+    },
+    doust: {
+      name: "Mr. Doust — Toilet Cleaner",
+      reply:
+        "**Mr. Doust** is our powerful toilet cleaner that removes tough stains and kills germs. Available in 500ml bottles."
+    },
+    sixer: {
+      name: "Sixer — Cricket Tennis Balls",
+      reply:
+        "**Sixer** cricket tennis balls are made for street cricket and casual play — durable, bouncy, and built to last."
+    },
+  };
+
+  var PRODUCTS_LIST =
+    "Here's what we make at AAEJEY:\n\n" +
+    "• **Liquid Blue (Nilma)** — laundry whitener, 30ml & 275ml\n" +
+    "• **Air Freshener (Flowery)** — 50g plastic holder\n" +
+    "• **Naphthalene Balls (Mammoth)** — 400g packs\n" +
+    "• **Liquid Dish Wash (Luty)** — 500ml bottles\n" +
+    "• **Laundry Detergent (Lovendry)** — 1000ml bottles\n" +
+    "• **Toilet Cleaner (Mr. Doust)** — 500ml bottles\n" +
+    "• **Cricket Tennis Balls (Sixer)** — sports\n" +
+    "• **Ball Point Pens (Rytink)** — Alpha range\n\n" +
+    "Ask me about any brand for more details!";
+
+  var EXPORT_REPLY =
+    "We welcome international buyers! 🌍 AAEJEY exports across the **Middle East** and to distributors worldwide. For MOQ, pricing, and shipping details, please email **info@aaejey.com** or WhatsApp **+94 72 228 0809**. You can also visit our Export page for full information.";
+
+  var CONTACT_REPLY =
+    "You can reach us at:\n\n" +
+    "📍 **Location:** Sri Lanka\n" +
+    "📧 **Email:** info@aaejey.com\n" +
+    "📱 **WhatsApp / Phone:** +94 72 228 0809\n" +
+    "🕐 **Hours:** Mon – Sat, 9:00 – 17:00 IST\n\n" +
+    "Or use the contact form on our Contact page and we'll reply within 1–2 business days.";
+
+  var GREETING_REPLY =
+    "Hello! 👋 Welcome to AAEJEY Consumer Company. I'm Aae, here to help you learn about our brands, products, exports, or how to reach us. What would you like to know?";
+
+  var THANKS_REPLY =
+    "You're very welcome! 😊 Is there anything else I can help you with?";
+
+  var ABOUT_REPLY =
+    "**AAEJEY Consumer Company** is a family-run FMCG manufacturer based in Sri Lanka with 25+ years of experience. We produce 8 trusted household brands — all made in-house — and export to distributors internationally.";
+
+  var PRICE_REPLY =
+    "For pricing, MOQ, and wholesale enquiries, please email **info@aaejey.com** or WhatsApp **+94 72 228 0809**. Our team will get back to you within 1–2 business days with a full quote.";
+
+  var FALLBACK =
+    "I'm not quite sure I caught that. Here's what I can help with:\n\n" +
+    "• Our **products** and brands\n" +
+    "• **Export** and distribution enquiries\n" +
+    "• **Contact** details and location\n" +
+    "• Info about a specific brand (Nilma, Flowery, Mammoth, Luty, Lovendry, Mr. Doust, Rytink, Sixer)\n\n" +
+    "For anything else, please email **info@aaejey.com** or WhatsApp **+94 72 228 0809**.";
+
+  function has(text, words) {
+    for (var i = 0; i < words.length; i++) {
+      if (text.indexOf(words[i]) !== -1) return true;
+    }
+    return false;
+  }
+
+  function answer(raw) {
+    var text = " " + raw.toLowerCase().trim() + " ";
+
+    // Greetings
+    if (has(text, [" hi ", " hii ", " hey ", " hello ", " helo ", " hola ", " good morning", " good afternoon", " good evening", " greetings"])) {
+      return GREETING_REPLY;
+    }
+
+    // Thanks
+    if (has(text, ["thank", "thanks", "thx", "appreciate"])) {
+      return THANKS_REPLY;
+    }
+
+    // Specific brands — check first so "nilma products" hits brand, not list
+    var brandKeys = Object.keys(BRANDS);
+    for (var i = 0; i < brandKeys.length; i++) {
+      if (text.indexOf(brandKeys[i]) !== -1) {
+        return BRANDS[brandKeys[i]].reply;
+      }
+    }
+
+    // Product categories keyword match (individual product)
+    if (has(text, ["liquid blue", "blueing", "whitener", "laundry blue"])) return BRANDS.nilma.reply;
+    if (has(text, ["air freshener", "air fresh", "fragrance", "freshener"])) return BRANDS.flowery.reply;
+    if (has(text, ["naphthalene", "moth ball", "mothball", "moth repellent"])) return BRANDS.mammoth.reply;
+    if (has(text, ["dish wash", "dishwash", "dish soap", "dishes"])) return BRANDS.luty.reply;
+    if (has(text, ["detergent", "laundry soap", "washing liquid"])) return BRANDS.lovendry.reply;
+    if (has(text, ["toilet clean", "bathroom clean", "toilet"])) return BRANDS["mr. doust"].reply;
+    if (has(text, ["cricket", "tennis ball", "sports ball", " ball "])) return BRANDS.sixer.reply;
+    if (has(text, ["pen", "ballpoint", "ball point", "stationery"])) return BRANDS.rytink.reply;
+
+    // Products list
+    if (has(text, ["product", "what do you make", "what do you sell", "what you make", "catalog", "catalogue", "range", "items", "what are your"])) {
+      return PRODUCTS_LIST;
+    }
+
+    // Export / distributor / international
+    if (has(text, ["export", "distributor", "distribut", "international", "overseas", "middle east", "wholesale", "bulk", "abroad", "ship worldwide", "global"])) {
+      return EXPORT_REPLY;
+    }
+
+    // Contact / location / email
+    if (has(text, ["contact", "email", "phone", "call", "whatsapp", "reach", "location", "address", "where are you", "based", "office", "factory", "sri lanka", "hours", "open"])) {
+      return CONTACT_REPLY;
+    }
+
+    // Pricing
+    if (has(text, ["price", "cost", "quote", "moq", "minimum order", "how much"])) {
+      return PRICE_REPLY;
+    }
+
+    // About
+    if (has(text, ["about", "who are you", "who is aaejey", "company", "history", "background", "aaejey"])) {
+      return ABOUT_REPLY;
+    }
+
+    // Yes / no small talk
+    if (/^\s*(yes|yeah|yep|sure|ok|okay)\s*$/.test(raw.toLowerCase())) {
+      return "Great! What would you like to know — our products, exports, or contact info?";
+    }
+    if (/^\s*(no|nope|nah)\s*$/.test(raw.toLowerCase())) {
+      return "No problem! Feel free to ask anytime. 👋";
+    }
+
+    // Bye
+    if (has(text, ["bye", "goodbye", "see you", "cya"])) {
+      return "Goodbye! Thanks for visiting AAEJEY. Have a great day! 👋";
+    }
+
+    return FALLBACK;
+  }
+
+  // ---------- UI ----------
   var fab = document.createElement("button");
   fab.className = "chat-fab";
   fab.setAttribute("aria-label", "Open chat");
@@ -54,7 +216,7 @@
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>' +
       '</button>' +
     '</div>' +
-    '<div class="chat-footer-note">Powered by AI · For urgent matters call +94 72 228 0809</div>';
+    '<div class="chat-footer-note">For urgent matters call +94 72 228 0809</div>';
 
   document.body.appendChild(fab);
   document.body.appendChild(panel);
@@ -64,12 +226,19 @@
   var sendBtn = panel.querySelector("#chat-send");
   var closeBtn = panel.querySelector(".chat-close");
 
-  var history = []; // [{role, content}]
-  var busy = false;
   var opened = false;
 
-  function scrollBottom() {
-    body.scrollTop = body.scrollHeight;
+  function scrollBottom() { body.scrollTop = body.scrollHeight; }
+
+  // Very small markdown → HTML (bold + line breaks + bullets)
+  function renderMd(text) {
+    var esc = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    esc = esc.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    esc = esc.replace(/\n/g, "<br>");
+    return esc;
   }
 
   function addMessage(role, text) {
@@ -77,7 +246,11 @@
     wrap.className = "chat-msg " + role;
     var bubble = document.createElement("div");
     bubble.className = "chat-msg-bubble";
-    bubble.textContent = text;
+    if (role === "assistant") {
+      bubble.innerHTML = renderMd(text);
+    } else {
+      bubble.textContent = text;
+    }
     wrap.appendChild(bubble);
     body.appendChild(wrap);
     scrollBottom();
@@ -132,47 +305,16 @@
 
   function send(text) {
     text = (text || input.value || "").trim();
-    if (!text || busy) return;
+    if (!text) return;
     input.value = "";
     addMessage("user", text);
-    history.push({ role: "user", content: text });
     var typing = addTyping();
-    busy = true;
-    sendBtn.disabled = true;
-
-    fetch(API_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history }),
-    })
-      .then(function (res) {
-        return res.json().then(function (data) {
-          return { ok: res.ok, data: data };
-        });
-      })
-      .then(function (result) {
-        typing.remove();
-        if (result.ok && result.data.reply) {
-          addMessage("assistant", result.data.reply);
-          history.push({ role: "assistant", content: result.data.reply });
-        } else {
-          var err = (result.data && result.data.error) ||
-            "Sorry, I couldn't reach the assistant. Please try again or email info@aaejey.com.";
-          addMessage("error", err);
-        }
-      })
-      .catch(function () {
-        typing.remove();
-        addMessage(
-          "error",
-          "Network error. Please check your connection or email info@aaejey.com."
-        );
-      })
-      .then(function () {
-        busy = false;
-        sendBtn.disabled = false;
-        input.focus();
-      });
+    // Small delay to feel natural
+    setTimeout(function () {
+      typing.remove();
+      addMessage("assistant", answer(text));
+      input.focus();
+    }, 450 + Math.random() * 350);
   }
 
   sendBtn.addEventListener("click", function () { send(); });
