@@ -364,12 +364,20 @@
     input.value = "";
     addMessage("user", text);
     var typing = addTyping();
-    // Small delay to feel natural
-    setTimeout(function () {
-      typing.remove();
-      addMessage("assistant", answer(text));
-      input.focus();
-    }, 450 + Math.random() * 350);
+    var localAnswer = answer(text);
+    if (localAnswer) {
+      setTimeout(function () {
+        typing.remove();
+        addMessage("assistant", localAnswer);
+        input.focus();
+      }, 450 + Math.random() * 350);
+    } else {
+      generalFallback(text).then(function (reply) {
+        typing.remove();
+        addMessage("assistant", reply || FALLBACK);
+        input.focus();
+      });
+    }
   }
 
   sendBtn.addEventListener("click", function () { send(); });
