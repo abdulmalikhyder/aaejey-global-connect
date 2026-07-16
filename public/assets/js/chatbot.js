@@ -156,6 +156,11 @@
       }
     }
 
+    // Private / insider info (checked before generic fallbacks)
+    for (var p = 0; p < PRIVATE_INFO.length; p++) {
+      if (has(text, PRIVATE_INFO[p].keys)) return PRIVATE_INFO[p].reply;
+    }
+
     // Product categories keyword match (individual product)
     if (has(text, ["liquid blue", "blueing", "whitener", "laundry blue"])) return BRANDS.nilma.reply;
     if (has(text, ["air freshener", "air fresh", "fragrance", "freshener"])) return BRANDS.flowery.reply;
@@ -204,7 +209,38 @@
       return "Goodbye! Thanks for visiting AAEJEY. Have a great day! 👋";
     }
 
-    return FALLBACK;
+    // No match — caller should try the general LLM fallback
+    return null;
+  }
+
+  // ---------- General AI fallback ----------
+  // For questions outside AAEJEY's business scope, call a lightweight LLM
+  // via our own /api/public/chat endpoint (Lovable AI Gateway). The reply
+  // is prefixed with a polite reminder that this is the AAEJEY assistant.
+  function generalFallback(userText) {
+    var payload = {
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are Aae, the AAEJEY Consumer Company assistant. The user just asked something outside AAEJEY's business scope (not about our products, brands, exports, or contact info). Answer their general question helpfully and concisely (2-4 sentences). Do NOT invent AAEJEY-specific facts. Reply ONLY with the general answer text — no preamble, no reminder about AAEJEY (that will be added automatically)."
+        },
+        { role: "user", content: userText }
+      ]
+    };
+    return fetch("/api/public/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var ans = data && data.reply ? String(data.reply).trim() : "";
+        if (!ans) return FALLBACK;
+        return "I'm the AAEJEY assistant, but I can help you with that! " + ans +
+          "\n\nIs there anything about our **products, exports, or contact info** I can help with?";
+      })
+      .catch(function () { return FALLBACK; });
   }
 
   // ---------- UI ----------
